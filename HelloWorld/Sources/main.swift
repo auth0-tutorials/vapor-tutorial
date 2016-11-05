@@ -1,8 +1,11 @@
 import Vapor
+import VaporMySQL
 import Fluent
 
+//let drop = Droplet()
+//drop.providers = [VaporMySQL.Provider.self]
 let drop = Droplet()
-
+try drop.addProvider(VaporMySQL.Provider.self)
 drop.preparations.append(Contact.self)
 
 drop.get("hello") { req in
