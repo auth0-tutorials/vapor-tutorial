@@ -91,6 +91,12 @@ And it should be done. Now vapor is serving its HelloWorld page on localhost:808
 
 ## Bulding a Contacts App
 
+### Playing with Droplet
+
+### Database integration
+
+### Creating and retrieving contacts
+
 ## Aside: auth0 integration and JWT
 
 https://github.com/kylef/JSONWebToken.swift
