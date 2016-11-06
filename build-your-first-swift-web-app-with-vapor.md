@@ -22,7 +22,7 @@ tags:
 
 ---
 
-**TL;DR**: The Swift language is growing popularity not only for iOS apps, but also for server-side applications. In this article, we'll use Vapor framework to build a web app.
+**TL;DR**: The Swift language is growing in popularity not only for iOS apps, but also for server-side applications. In this article, we'll use Vapor framework to build a web app.
 
 ---
 
@@ -40,6 +40,59 @@ You need a machine [able to run Swift 3](https://swift.org/download/).
 
 ## Environment setup
 
-First of all, we need to [download and install Swift 3](https://swift.org/download/).
+First of all, we need to [download and install Swift 3](https://swift.org/download/) (the steps are different for Ubuntu and macOS). After that, it's necessary to install the Vapor Toolbox, a command line interface for common Vapor tasks, as `build` and `serve`. Run the following script to install the Toolbox.
 
-## Example
+`curl -sL toolbox.vapor.sh | bash`
+
+To verify if the installation was successful, run `vapor --help`, which should show a list of commands. To update the toolbox, just run `vapor self update`.
+
+To make sure everything is running fine, let's build a Hello World app.
+
+### Hello World App
+
+First of all, let's create the new Vapor project.
+
+`vapor new HelloWorld`
+
+Vapor will generate a folder structure with some files. Vapor command line interface uses [Swift Package Manager](https://swift.org/package-manager/) to manage the dependencies.
+
+If you are using macOS and want to edit the project on Xcode, run `vapor xcode -y` in the HelloWorld subdirectory to generate and open an Xcode project.
+
+Look for the main.swift file and place the following code there.
+
+```swift
+import Vapor
+
+let drop = Droplet()
+
+drop.get { req in
+    return try drop.view.make("welcome", [
+    	"message": drop.localization[req.lang, "welcome", "title"]
+    ])
+}
+
+drop.resource("posts", PostController())
+
+drop.run()
+
+```
+
+> Note: on version 1.1, Vapor already generates this code when you create a new project. But it's here just in case things change, considering that Vapor is in a fast development pace.
+
+After that, run the two following commands.
+
+```
+vapor build
+vapor run serve
+```
+
+And it should be done. Now vapor is serving its HelloWorld page on localhost:8080. To check that things are working out, just open your browser and type `localhost:8080`.
+
+
+## Bulding a Contacts App
+
+## Aside: auth0 integration and JWT
+
+https://github.com/kylef/JSONWebToken.swift
+
+## Conclusion and next steps
