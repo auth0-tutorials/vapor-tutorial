@@ -93,6 +93,54 @@ And it should be done. Now vapor is serving its HelloWorld page on localhost:808
 
 ### Playing with Droplet
 
+Droplet is a container that makes it easy to use many of Vapor's features. It's responsible for starting and running the server, set up environments, register routes, and more. It's necessary to import Vapor to initialize and run a droplet.
+
+```swift
+import Vapor
+
+let drop = Droplet()
+
+// config, registering routes, etc
+
+drop.run()
+```
+
+Let's now register a get request at localhost:8080/hello.
+
+```swift
+drop.get("hello") { request in
+    return "Hello World!"
+}
+```
+
+The first parameter is the endpoint, and the closure returns the response of the request. The return must be of a type who conforms to the `ResponseRepresentable` protocol. Strings and JSON already conform to this protocol, but it's also possible to create a custom response.
+
+```swift
+drop.get("hello") { request in
+	return Response(status: .ok, headers: ["Content-Type": "text/plain"], body: "Hello, World!")
+}
+```
+
+It's also pretty straightforward to create a post request and retrieve sent JSON data.
+
+```swift
+drop.post("contacts", "create") { request in
+    return try JSON(node: [
+        "response": request.data["name"]?.string
+        ])
+}
+```
+
+This register a POST HTTP endpoint at localhost:8080/contacts/create and returns a JSON response. It gets the data sent as JSON in the request for the key test and retrieves its string value on `request.data["test"]?.string`.
+
+This endpoint is easy to test with cURL:
+
+`curl -i -H "Accept: application/json" "localhost:8080/contacts/create {"name":"John"}"`
+
+
+Don't forget to always run `vapor build` and `vapor run serve` before testing on the browser or with cURL.
+
+
 ### Database integration
 
 ### Creating and retrieving contacts
