@@ -1,6 +1,7 @@
+import Foundation
+
 import Vapor
 import Fluent
-import Foundation
 
 final class Post: Model {
     var id: Node?
@@ -36,10 +37,13 @@ extension Post {
 
 extension Post: Preparation {
     static func prepare(_ database: Database) throws {
-        //
+        try database.create("posts") { post in
+            post.id()
+            post.string("content")
+        }
     }
 
     static func revert(_ database: Database) throws {
-        //
+        try database.delete("posts")
     }
 }
