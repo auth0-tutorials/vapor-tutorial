@@ -12,7 +12,7 @@ drop.get("hello") { req in
     
     var contact = Contact(name: "Vapor")
     try contact.save()
-    print(contact.id)
+    print(contact.id as Any)
     
     return try JSON(node: contact)
 }

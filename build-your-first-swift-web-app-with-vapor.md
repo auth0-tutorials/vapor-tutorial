@@ -143,9 +143,29 @@ Don't forget to always run `vapor build` and `vapor run serve` before testing on
 
 ### Database integration
 
+Let's make the database integration with MySQL. First of all, it's necessary to install MySQL and start it.
+
+On Linux:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y mysql-server libmysqlclient-dev
+sudo mysql_install_db
+sudo service mysql start
+```
+
+On macOS:
+
+```sh
+brew install mysql
+brew link mysql
+mysql.server start
+```
+> In case you don't have Homebrew installed, follow the instructions at http://brew.sh/
+
 ### Creating and retrieving contacts
 
-## Aside: auth0 integration and JWT
+## Aside: Auth0 integration and JWT
 
 https://github.com/kylef/JSONWebToken.swift
 
