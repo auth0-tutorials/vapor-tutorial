@@ -26,6 +26,8 @@ tags:
 
 ---
 
+> Note: This tutorial was written using Vapor 1.5
+
 Since it was introduced in mid-2014, Swift language has seen [stunning growth in popularity](http://redmonk.com/sogrady/2016/07/20/language-rankings-6-16/). When the language became [open source](https://developer.apple.com/swift/blog/?id=34) and available on Linux in late-2015, server-side applications started to gain popularity as well.
 
 People involved with [IBM Kitura](https://github.com/IBM-Swift/Kitura), [Vapor](https://github.com/vapor/vapor), [Zewo](https://github.com/Zewo/Zewo) and [Perfect](https://github.com/PerfectlySoft/Perfect) - the hottest Swift server-side frameworks - were invited by Apple to focus on server-side needs like networking, security and HTTP/WebSocket parsing. This way, they will work to make possible to write pure Swift server-side frameworks, without needing to rely on C libraries.
@@ -79,7 +81,7 @@ drop.run()
 
 ```
 
-> Note: on version 1.1, Vapor already generates this code when you create a new project. But it's here just in case things change, considering that Vapor is in such a fast development pace.
+> Note: starting on version 1.1, Vapor already generates this code when you create a new project. But it's here just in case things change, considering that Vapor is in such a fast development pace.
 
 After that, run the two following commands.
 
@@ -101,6 +103,7 @@ Now that we have our server-side Swift environment setup working with Vapor, we 
 
 ```swift
 import Vapor
+import HTTP
 
 let drop = Droplet()
 
@@ -140,7 +143,7 @@ This register a HTTP endpoint at `http://localhost:8080/contacts/create` that re
 To test this endpoint we can use a program like [Postman](https://www.getpostman.com/) or cURL:
 
 ```
-curl -i -H "Accept: application/json" "localhost:8080/contacts/create {"name":"John"}"
+curl -i -H "Content-Type: application/json" -X POST -d '{"name": "John"}' "localhost:8080/contacts/create"
 ```
 
 
@@ -168,6 +171,16 @@ brew link mysql
 mysql.server start
 ```
 > In case you don't have Homebrew installed, follow the instructions at [Homebrew's homepage](http://brew.sh/)
+
+### MySQL Driver and Provider
+
+- updating dependecies
+- create database manually
+- folder secrets and mysql.json
+- provider code
+- droplet with preparations
+- model code
+- endpoint code
 
 ### Creating and retrieving contacts
 
