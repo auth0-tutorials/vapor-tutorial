@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Build Your First Swift Web App with Vapor"
+title: "Server Side Swift App with Vapor and Droplet"
 description: ""
 date: 2016-11-05 8:30
-alias: /2016/11/05/build-your-first-swift-web-app-with-vapor/
+alias: /2017/03/05/server-side-swift-app-with-vapor-and-droplet/
 author:
   name: Rafael Sacchi
   url: https://twitter.com/rafael_sacchi
@@ -22,27 +22,27 @@ tags:
 
 ---
 
-**TL;DR**: The Swift language is growing in popularity not only for iOS apps, but also for server-side applications. In this article, we'll use Vapor framework to build a web app.
+**TL;DR**: The Swift language is growing in popularity not only for iOS apps, but also for server-side applications. In this article, we'll use Vapor and Droplet to build a web app.
 
 ---
 
-Since it was introduced in mid-2014, Swift language has seen [stunning growth in popularity](http://redmonk.com/sogrady/2016/07/20/language-rankings-6-16/). When the language became [open source](https://developer.apple.com/swift/blog/?id=34) and available on linux in late-2015, server-side applications started to gain popularity as well.
+Since it was introduced in mid-2014, Swift language has seen [stunning growth in popularity](http://redmonk.com/sogrady/2016/07/20/language-rankings-6-16/). When the language became [open source](https://developer.apple.com/swift/blog/?id=34) and available on Linux in late-2015, server-side applications started to gain popularity as well.
 
-Recently, Apple announced the creation of [Swift Server APIs working group](https://swift.org/blog/server-api-workgroup/). They invite participants in the community to provide new Swift APIs focused on server-side needs (as networking, security and HTTP/WebSocket parsing). This way, it will be possible to write pure Swift server-side frameworks, without needing to rely on C libraries. 
-
-The work group steering team and stakeholders consists of people involved in the hottest Swift server-side frameworks at the moment: [IBM Kitura](https://github.com/IBM-Swift/Kitura), [Vapor](https://github.com/vapor/vapor), [Zewo](https://github.com/Zewo/Zewo) and [Perfect](https://github.com/PerfectlySoft/Perfect).
+People involved with [IBM Kitura](https://github.com/IBM-Swift/Kitura), [Vapor](https://github.com/vapor/vapor), [Zewo](https://github.com/Zewo/Zewo) and [Perfect](https://github.com/PerfectlySoft/Perfect) - the hottest Swift server-side frameworks - were invited by Apple to focus on server-side needs like networking, security and HTTP/WebSocket parsing. This way, they will work to make possible to write pure Swift server-side frameworks, without needing to rely on C libraries.
 
 In this tutorial, we'll learn how to set up Vapor framework, learn its essential concepts, and build a simple web application for creating and retrieving contacts.
 
-## Prerequisites
+## Swift Server Side Prerequisites
 
-You need a machine [able to run Swift 3](https://swift.org/download/).
+You need a machine running Mac OS X 10.11+ or Linux. Apple builds and tests binaries for Ubuntu 14.04 and 16.04 and 16.10, but it's possible to build the language from source in other Linux distributions. You can download the binaries [here](https://swift.org/download/).
 
-## Environment setup
+## Setting up Swift and Vapor
 
-First of all, we need to [download and install Swift 3](https://swift.org/download/) (the steps are different for Ubuntu and macOS). After that, it's necessary to install the Vapor Toolbox, a command line interface for common Vapor tasks, as `build` and `serve`. Run the following script to install the Toolbox.
+First of all, we need to [download and install Swift 3](https://swift.org/download/) (the steps are different for Ubuntu and macOS). After that, it's necessary to install the [Vapor Toolbox](https://github.com/vapor/toolbox), a command line interface for common Vapor tasks, as `build` and `serve`. Run the following script to install the Toolbox.
 
-`curl -sL toolbox.vapor.sh | bash`
+```
+curl -sL toolbox.vapor.sh | bash
+```
 
 To verify if the installation was successful, run `vapor --help`, which should show a list of commands. To update the toolbox, just run `vapor self update`.
 
@@ -52,13 +52,15 @@ To make sure everything is running fine, let's build a Hello World app.
 
 First of all, let's create the new Vapor project.
 
-`vapor new HelloWorld`
+```
+vapor new HelloWorld
+```
 
 Vapor will generate a folder structure with some files. Vapor command line interface uses [Swift Package Manager](https://swift.org/package-manager/) to manage the dependencies.
 
 If you are using macOS and want to edit the project on Xcode, run `vapor xcode -y` in the HelloWorld subdirectory to generate and open an Xcode project.
 
-Look for the main.swift file and place the following code there.
+Look for the `main.swift` file and place the following code there.
 
 ```swift
 import Vapor
@@ -77,7 +79,7 @@ drop.run()
 
 ```
 
-> Note: on version 1.1, Vapor already generates this code when you create a new project. But it's here just in case things change, considering that Vapor is in a fast development pace.
+> Note: on version 1.1, Vapor already generates this code when you create a new project. But it's here just in case things change, considering that Vapor is in such a fast development pace.
 
 After that, run the two following commands.
 
@@ -86,14 +88,16 @@ vapor build
 vapor run serve
 ```
 
-And it should be done. Now vapor is serving its HelloWorld page on localhost:8080. To check that things are working out, just open your browser and type `localhost:8080`.
+And it should be done. Now vapor is serving its HelloWorld page on localhost:8080. To check that things are working out, just open your browser and type `http://localhost:8080`.
 
 
 ## Bulding a Contacts App
 
+Now that we have our server-side Swift environment setup working with Vapor, we are going to start creating our Contacts App. This application will have two features: add a new contact and retrieve all contacts. But first of all, let's check out how Droplet works.
+
 ### Playing with Droplet
 
-Droplet is a container that makes it easy to use many of Vapor's features. It's responsible for starting and running the server, set up environments, register routes, and more. It's necessary to import Vapor to initialize and run a droplet.
+[Droplet](https://vapor.github.io/documentation/guide/droplet.html) is a container that makes it easy to use many of Vapor's features. It's responsible for starting and running the server, set up environments, register routes, and more. It's necessary to import Vapor to initialize and run a droplet.
 
 ```swift
 import Vapor
@@ -113,7 +117,7 @@ drop.get("hello") { request in
 }
 ```
 
-The first parameter is the endpoint, and the closure returns the response of the request. The return must be of a type who conforms to the `ResponseRepresentable` protocol. Strings and JSON already conform to this protocol, but it's also possible to create a custom response.
+The first parameter is the endpoint, and the closure returns a response to the request. The returned value must be of a type who conforms to the `ResponseRepresentable` protocol. Strings and JSON already conform to this protocol, but it's also possible to create a [custom response](https://vapor.github.io/documentation/http/response-representable.html).
 
 ```swift
 drop.get("hello") { request in
@@ -121,7 +125,7 @@ drop.get("hello") { request in
 }
 ```
 
-It's also pretty straightforward to create a post request and retrieve sent JSON data.
+It's also pretty straightforward to create an endpoint that responds to POST requests and returns data in JSON format.
 
 ```swift
 drop.post("contacts", "create") { request in
@@ -131,19 +135,21 @@ drop.post("contacts", "create") { request in
 }
 ```
 
-This register a POST HTTP endpoint at localhost:8080/contacts/create and returns a JSON response. It gets the data sent as JSON in the request for the key test and retrieves its string value on `request.data["test"]?.string`.
+This register a HTTP endpoint at `http://localhost:8080/contacts/create` that responds to POST requests and returns a response with data in JSON format. It gets the data sent as JSON in the request for the key `test` and retrieves its string value on `request.data["test"]?.string`.
 
-This endpoint is easy to test with cURL:
+To test this endpoint we can use a program like [Postman](https://www.getpostman.com/) or cURL:
 
-`curl -i -H "Accept: application/json" "localhost:8080/contacts/create {"name":"John"}"`
+```
+curl -i -H "Accept: application/json" "localhost:8080/contacts/create {"name":"John"}"
+```
 
 
-Don't forget to always run `vapor build` and `vapor run serve` before testing on the browser or with cURL.
+Don't forget to run `vapor build` and `vapor run serve` before testing it.
 
 
 ### Database integration
 
-Let's make the database integration with MySQL. First of all, it's necessary to install MySQL and start it.
+Let's make the database integration with [MySQL](https://www.mysql.com/). First of all, it's necessary to install MySQL and start it.
 
 On Linux:
 
@@ -161,7 +167,7 @@ brew install mysql
 brew link mysql
 mysql.server start
 ```
-> In case you don't have Homebrew installed, follow the instructions at http://brew.sh/
+> In case you don't have Homebrew installed, follow the instructions at [Homebrew's homepage](http://brew.sh/)
 
 ### Creating and retrieving contacts
 
