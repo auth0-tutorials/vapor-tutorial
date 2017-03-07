@@ -7,6 +7,7 @@ final class Contact: Model {
     var name: String
     var email: String
     var exists: Bool = false
+    static var entity = "contacts"
     
     init(name: String, email: String) {
         self.id = UUID().uuidString.makeNode()
@@ -33,7 +34,7 @@ final class Contact: Model {
 extension Contact: Preparation {
     
     static func prepare(_ database: Database) throws {
-        try database.create("contact") { contacts in
+        try database.create("contacts") { contacts in
             contacts.id()
             contacts.string("name")
             contacts.string("email")
@@ -41,6 +42,6 @@ extension Contact: Preparation {
     }
     
     static func revert(_ database: Database) throws {
-        try database.delete("contact")
+        try database.delete("contacts")
     }
 }

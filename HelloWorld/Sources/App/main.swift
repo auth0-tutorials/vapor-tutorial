@@ -11,6 +11,13 @@ drop.get("hello") { request in
     return Response(status: .ok, headers: ["Content-Type": "text/plain"], body: "Hello, World!")
 }
 
+drop.get("version") { request in
+    if let db = drop.database?.driver as? MySQLDriver {
+        return try JSON(node: db.raw("SELECT version()"))
+    }
+    return "No db connection"
+}
+
 drop.post("contacts", "create") { request in
     guard let name = request.data["name"]?.string, let email = request.data["email"]?.string else {
         return try JSON(node: [
