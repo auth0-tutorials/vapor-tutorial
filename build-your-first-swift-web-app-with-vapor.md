@@ -150,7 +150,7 @@ curl -i -H "Content-Type: application/json" -X POST -d '{"name": "John"}' "local
 Don't forget to run `vapor build` and `vapor run serve` before testing it.
 
 
-### Database integration
+### MySQL installation
 
 Let's make the database integration with [MySQL](https://www.mysql.com/). First of all, it's necessary to install MySQL and start it.
 
@@ -172,17 +172,152 @@ mysql.server start
 ```
 > In case you don't have Homebrew installed, follow the instructions at [Homebrew's homepage](http://brew.sh/)
 
-### MySQL Driver and Provider
+### Fluent
 
-- updating dependecies
-- create database manually
-- folder secrets and mysql.json
-- provider code
-- droplet with preparations
-- model code
-- endpoint code
+[Fluent](https://github.com/vapor/fluent) is a Swift ORM framework also made by Vapor. It has drivers for a [good range of databases](https://github.com/search?q=org%3Avapor+driver) and is totally independent from vapor framework.
+
+To connect your model objects to a database, it's also necessary to install a database provider, which is a way to add third party packages to a project. The relationship between database, fluent, drivers and providers is illustrated in the following image:
+
+<img src="fluent-chart.png">
+
+### Database configuration and integration
+
+It's necessary to add Fluent and MySQL provider to your project. Open the `Package.swift` file and add these two dependencies:
+
+```
+.Package(url: "https://github.com/vapor/mysql-provider.git", majorVersion: 1, minor: 0),
+.Package(url: "https://github.com/vapor/fluent.git", majorVersion: 1, minor: 4)
+```
+
+Run `vapor build` to install them. After that, you'll need to manually [create a database on MySQL](https://dev.mysql.com/doc/refman/5.7/en/creating-database.html) named `vapor`. Then create two config files for database access in the project. In the  `/config` subdirectory, create a new file named `mysql.json` and update it with this content:
+
+```json
+{
+  "host": "127.0.0.1",
+  "user": <your-user-name>,
+  "password": <your-password>,
+  "database": "vapor",
+  "port": "3306",
+  "encoding": "utf8"
+}
+```
+> Note: Replace `your-user-name` and `your-password` with the username and passwords that you defined when creating the database.
+
+Still in the `/config` subdirectory, create a new subdirectory named `/secrets`. Copy and paste the `mysql.json` file above in the secrets subdirectory.
+
+Now it's time to add the MySQL provider to the Droplet. In the `main.swift` file, right after creating the droplet, add this line:
+
+```swift
+try drop.addProvider(VaporMySQL.Provider.self)
+```
+
+To check that everything is working fine, let's add an endpoint that returns the currently installed MySQL version. Add this to `main.swift` file:
+
+```swift
+drop.get("version") { request in
+    if let db = drop.database?.driver as? MySQLDriver {
+        return try JSON(node: db.raw("SELECT version()"))
+    }
+    return "No db connection"
+}
+```
+
+To test it, just run 
+
+```
+curl -i -H "Accept: application/json" "localhost:8080/version"
+```
+
+It should return a response in the following format:
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Thu, 09 Mar 2017 02:15:18 GMT
+Content-Length: 24
+
+[{"version()":"5.x.y"}]
+```
+
+### Creating your model
+
+To create a model in Vapor, you need first to create a file named `Models/Contact.swift` in the `App` group of the Xcode project. Then import these two modules and create the model with its properties:
+
+```swift
+import Vapor
+import Fluent
+
+final class Contact: Model {
+	var name: String
+	var email: String
+	var exists: Bool = false
+	static var entity = "contacts"
+}
+```
+
+It's also necessary to conform to `Model` protocol. This means implementing a few methods and properties: the node initializer and node representable methods, and the id property.
+
+The node initializer is responsible for creating the model from the persisted data. Add it to the `Contact` class:
+
+```swift
+init(node: Node, in context: Context) throws {
+	id = try node.extract("id")
+	name = try node.extract("name")
+	email = try node.extract("email")
+}
+```
+
+On the other hand, the node representable method is responsible for preparing the data to be saved in the database:
+
+```swift
+func makeNode(context: Context) throws -> Node {
+	return try Node(node: [
+		"id": id,
+		"name": name,
+		"email": email
+	])
+}
+```
+
+Finally, the it's necessary to add an identifier to the model. Just add this single line as another `Contact` property:
+
+```swift
+var id: Node?
+```
+
+### Model preparations
+
+Some databases need to be prepared for new schemas. In Fluent, it's necessary to implement the `Preparation` protocol to prepare the database for any task it may need to perform in runtime. Add this extension to the `Contact` class:
+
+```swift
+extension Contact: Preparation {
+    
+    static func prepare(_ database: Database) throws {
+        try database.create("contacts") { contacts in
+            contacts.id()
+            contacts.string("name")
+            contacts.string("email")
+        }
+    }
+    
+    static func revert(_ database: Database) throws {
+    }
+}
+```
+
+The `prepare(_:)` function is responsible for creating the `contacts` table in the database. If anything goes wrong, the `revert(_:)` function is called. We'll keep the `revert(_:)` function empty for this tutorial.
+
+It's necessary to add a preparation for the `Contact` model in the droplet. Add this in the `main.swift` file:
+
+```swift
+drop.preparations.append(Contact.self)
+```
+
+Then you're ready to save and retrieve your models from the database.
 
 ### Creating and retrieving contacts
+
+To check that everything works, let's add two endpoints: one for creating a new contact and the other one for retrieving all contacts in database.
 
 ## Aside: Auth0 integration and JWT
 
