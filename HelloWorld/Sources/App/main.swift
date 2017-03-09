@@ -30,4 +30,8 @@ drop.post("contacts", "create") { request in
     return contact
 }
 
+drop.get("contacts", "get") { request in
+    return Contact.query().all()
+}
+
 drop.run()
