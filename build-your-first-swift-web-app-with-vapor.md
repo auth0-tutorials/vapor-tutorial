@@ -319,6 +319,108 @@ Then you're ready to save and retrieve your models from the database.
 
 To check that everything works, let's add two endpoints: one for creating a new contact and the other one for retrieving all contacts in database.
 
+To create a new contact:
+
+```swift
+drop.post("contacts", "create") { request in
+    guard let name = request.data["name"]?.string else {
+        let jsonResponse = try JSON(node: ["message": "Contacts must have a name"])
+        return try Response(status: .badRequest, json: jsonResponse)
+    }
+    
+    guard let email = request.data["email"]?.string else {
+        let jsonResponse = try JSON(node: ["message": "Contacts must have an email"])
+        return try Response(status: .badRequest, json: jsonResponse)
+    }
+    
+    var contact = Contact(name: name, email: email)
+    try contact.save()
+    return contact
+}
+```
+
+The snippet above validates that the sent data has the fields `name` and `email`, otherwise it returns an error with the `400` status (bad request). Below there is a request without the `name` field and its response.
+
+```
+curl -i -H "Content-Type: application/json" -X POST -d '{"email": "john@gmail.com"}' "localhost:8080/contacts/create"
+```
+> Request with no `name` field
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/json; charset=utf-8
+Date: Thu, 09 Mar 2017 11:06:33 GMT
+Content-Length: 39
+
+{"message":"Contacts must have a name"}
+```
+> Bad request response
+
+If the sent data passes the validation, a new contact is created, saved in the database and returned as a response, so the client is able to know the contact id.
+
+```
+curl -i -H "Content-Type: application/json" -X POST -d '{"name": "John", "email": "john@gmail.com"}' "localhost:8080/contacts/create"
+```
+> Request with the two required fields
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Thu, 09 Mar 2017 11:06:43 GMT
+Content-Length: 47
+
+{"email":"john@gmail.com","id":1,"name":"John"}
+```
+> Successful response
+
+That's if for creating a new contact in the database. Let's add an endpoint to retrieve all saved contacts.
+
+```swift
+drop.get("contacts", "get") { request in
+    let contacts = try Contact.query().all()
+    let contactsNode = try contacts.makeNode()
+    let nodeDictionary = ["contacts": contactsNode]
+    return try JSON(node: nodeDictionary)
+}
+```
+
+First, we query all the contacts. Unfortunately, due to generics limitations in Swift, `Array`s cannot conform to `ResponseRepresentable`. It's necessary to create a `Node`, a new node dictionary and instantiate a JSON object with this dictionary to return the contacts as `Response`.
+
+Now let's test the endpoint.
+
+```
+curl -i -H "Content-Type: application/json" -X GET "localhost:8080/contacts/get"
+```
+> Request all contacts
+
+```
+{
+   "contacts":[
+      {
+         "email":"john@gmail.com",
+         "id":1,
+         "name":"John"
+      },
+      {
+         "email":"sophia@gmail.com",
+         "id":2,
+         "name":"Sophia"
+      },
+      {
+         "email":"martha@gmail.com",
+         "id":3,
+         "name":"Martha"
+      },
+      {
+         "email":"glen@gmail.com",
+         "id":4,
+         "name":"Glen"
+      }
+   ]
+}
+```
+> Response with all contacts
+
 ## Aside: Auth0 integration and JWT
 
 https://github.com/kylef/JSONWebToken.swift

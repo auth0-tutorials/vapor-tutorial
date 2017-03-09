@@ -19,19 +19,26 @@ drop.get("version") { request in
 }
 
 drop.post("contacts", "create") { request in
-    guard let name = request.data["name"]?.string, let email = request.data["email"]?.string else {
-        return try JSON(node: [
-            "error": "1152",
-            "message": "We had a problem creating a new contact"
-            ])
+    guard let name = request.data["name"]?.string else {
+        let jsonResponse = try JSON(node: ["message": "Contacts must have a name"])
+        return try Response(status: .badRequest, json: jsonResponse)
     }
+    
+    guard let email = request.data["email"]?.string else {
+        let jsonResponse = try JSON(node: ["message": "Contacts must have an email"])
+        return try Response(status: .badRequest, json: jsonResponse)
+    }
+    
     var contact = Contact(name: name, email: email)
     try contact.save()
     return contact
 }
 
 drop.get("contacts", "get") { request in
-    return Contact.query().all()
+    let contacts = try Contact.query().all()
+    let contactsNode = try contacts.makeNode()
+    let nodeDictionary = ["contacts": contactsNode]
+    return try JSON(node: nodeDictionary)
 }
 
 drop.run()
