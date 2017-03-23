@@ -455,3 +455,10 @@ To sign the JWT, it's necessary to take the encoded header, encoded payload, a s
 https://github.com/kylef/JSONWebToken.swift
 
 ## Conclusion and next steps
+You can find the example project in [this repository](https://github.com/auth0-tutorials/vapor-tutorial).
+
+Server-side Swift is definitely getting space. As Swift makes it to the [top 10 most popular programming languages](https://9to5mac.com/2017/03/10/swift-popularity-adoption-tiobe-index/) and Swift team is concerned with server-side language features, we can expect frameworks like Vapor to evolve quickly and rise in adoption.
+
+Swift is a safe language, with features such as optionals, compile-time type checking, exhaustive `switch` clauses, immutability, among others. Include all other [powerful language features](https://www.quora.com/What-are-the-key-features-of-Apples-Swift-language), this makes Swift an interesting option to build any kind of application.
+
+Vapor also stands out because it's quite modular, compared to other Swift server-side frameworks.
