@@ -423,6 +423,35 @@ curl -i -H "Content-Type: application/json" -X GET "localhost:8080/contacts/get"
 
 ## Aside: Auth0 integration and JWT
 
+JSON Web Token (JWT) is a compact and self-contained way to represent claims to be transferred between two parties as a JSON object. The token is digitally signed using a secret or public/private key pair.
+
+A JWT is mae of three parts, separated by dots: header, payload and signature. So it has the following format: `hhhhhhhhhh.pppppppppp.ssssssssss`.
+
+### Header 
+The header usually contains the token type, such as JWT, and algorithm used to encrypt it, such as RSA. For example:
+
+```json
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+```
+
+### Payload
+The payload contains the claims, which can reserved, public and private. 
+
+* Reserved claims are interoperable (but not mandatory). It is only three characters long. Examples: expiration date (`exp`) and issuer (`iss`).
+* Public claims are defined by everyone using JWT. To avoid collisions, it should be define in the [IANA JSON Web Token Registry](https://www.iana.org/assignments/jwt/jwt.xhtml).
+* Private claims are custom claims to be defined between the envolved parties.
+
+### Signature
+To sign the JWT, it's necessary to take the encoded header, encoded payload, a secret, and sign it with the algorithm specified in the header.
+
+### Auth0 integration
+
+
+
+
 https://github.com/kylef/JSONWebToken.swift
 
 ## Conclusion and next steps
