@@ -441,7 +441,7 @@ The header usually contains the token type, such as JWT, and algorithm used to e
 The payload contains the claims, which can reserved, public and private. 
 
 * Reserved claims are interoperable (but not mandatory). It is only three characters long. Examples: expiration date (`exp`) and issuer (`iss`).
-* Public claims are defined by everyone using JWT. To avoid collisions, it should be define in the [IANA JSON Web Token Registry](https://www.iana.org/assignments/jwt/jwt.xhtml).
+* Public claims are defined by everyone using JWT. To avoid collisions, it should be defined in the [IANA JSON Web Token Registry](https://www.iana.org/assignments/jwt/jwt.xhtml).
 * Private claims are custom claims to be defined between the envolved parties.
 
 ### Signature
