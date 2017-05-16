@@ -487,63 +487,18 @@ A server-side framework (like Vapor) can receive an Authorization Code generated
 
 > You can check the flow with more details on [this page](https://auth0.com/docs/api-auth/grant/authorization-code).
 
-Let's assume that your client already sent an Authorization Code. Then your web app needs to send the following request to Auth0 API:
+Let's assume that your front-end application (written in [Angular, React, Vue, Android, or anything like that](https://auth0.com/docs)) is already integrated with Auth0, and is sending a request with an `Authorization` header that contains a JWT.
+
+You can use a package like [JSONWebToken](https://github.com/kylef/JSONWebToken.swift) to decode and verify if a token is valid. You need to supply the algorithm and secret used to encode the JWT.
 
 ```swift
-import Foundation
-
-let headers = ["content-type": "application/json"]
-let parameters = [
-  "grant_type": "authorization_code",
-  "client_id": "YOUR_CLIENT_ID",
-  "client_secret": "YOUR_CLIENT_SECRET",
-  "code": "YOUR_AUTHORIZATION_CODE",
-  "redirect_uri": "https://YOUR_APP/callback"
-]
-
-let postData = NSJSONSerialization.dataWithJSONObject(parameters, options: nil, error: nil)
-
-var request = NSMutableURLRequest(URL: NSURL(string: "https://YOUR_AUTH0_DOMAIN/oauth/token")!,
-                                        cachePolicy: .UseProtocolCachePolicy,
-                                    timeoutInterval: 10.0)
-request.HTTPMethod = "POST"
-request.allHTTPHeaderFields = headers
-request.HTTPBody = postData
-
-let session = NSURLSession.sharedSession()
-let dataTask = session.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
-  if (error != nil) {
-    println(error)
-  } else {
-    let httpResponse = response as? NSHTTPURLResponse
-    println(httpResponse)
-  }
-})
-
-dataTask.resume()
-```
-
-> For details on getting the Authorization Code on your client, you can check the part 1 on [this page](https://auth0.com/docs/api-auth/tutorials/authorization-code-grant)
-
-The JSON sent on the request body should contain:
-
-* `grant_type`: This must be authorization_code.
-* `client_id`: Your application's Client ID.
-* `client_secret`: Your application's Client Secret.
-* `code`: The Authorization Code received from the initial authorize call.
-* `redirect_uri`: The URL must match exactly the redirect_uri passed to `/authorize`.
-
-The response contains the `access_token`, `refresh_token`, `id_token`, and `token_type` values, for example:
-
-```json
-{
-  "access_token": "eyJz93a...k4laUWw",
-  "refresh_token": "GEbRxBN...edjnXbL",
-  "id_token": "eyJ0XAi...4faeEoQ",
-  "token_type": "Bearer"
+do {
+  let claims: ClaimSet = try JWT.decode(tokenSentOnAuthorizationHeader, algorithm: .hs256("secret".data(using: .utf8)!))
+  print(claims)
+} catch {
+  print("Failed to decode JWT: \(error)")
 }
 ```
-
 
 ## Conclusion and next steps
 You can find the example project in [this repository](https://github.com/auth0-tutorials/vapor-tutorial).
